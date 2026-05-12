@@ -27,13 +27,6 @@ class StoreUserRequest extends FormRequest
         ];
     }
 
-    protected function prepareForValidation()
-    {
-        $this->merge([
-            'status' => $this->status ?? 'inactive',
-        ]);
-    }
-
     // custom messages for validation
     public function messages(): array
     {

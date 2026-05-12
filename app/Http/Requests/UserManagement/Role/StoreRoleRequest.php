@@ -46,7 +46,6 @@ class StoreRoleRequest extends FormRequest
         ];
     }
 
-    //! Handle the failed validation response in a consistent way across the application, maybe using a custom exception handler or a trait for API responses.
     public function failedValidation(Validator $validator)
     {
         throw new HttpResponseException(

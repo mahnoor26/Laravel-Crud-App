@@ -26,9 +26,8 @@ class UpdateRoleRequest extends FormRequest
         $roleId = $this->route('role');
 
         return [
-            'name' => 'required|string|max:255|unique:roles,name',
+            'name' => 'required|string|max:255|unique:roles,name,' . $roleId,
             'description' => 'nullable|string',
-            'guard_name' => 'nullable|string|in:web',
             'permissions' => 'nullable|array',
             'permissions.*' => 'exists:permissions,id',
         ];
@@ -48,7 +47,6 @@ class UpdateRoleRequest extends FormRequest
         ];
     }
 
-    //! Handle the failed validation response in a consistent way across the application, maybe using a custom exception handler or a trait for API responses.
     public function failedValidation(Validator $validator)
     {
         throw new HttpResponseException(

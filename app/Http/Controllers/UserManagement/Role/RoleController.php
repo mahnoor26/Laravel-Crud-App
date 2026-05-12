@@ -6,70 +6,54 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\UserManagement\Role\StoreRoleRequest;
 use App\Http\Requests\UserManagement\Role\UpdateRoleRequest;
 use App\Models\Role;
+use App\Services\RoleService;
+use F9Web\ApiResponseHelpers;
 
 class RoleController extends Controller
 {
+    use ApiResponseHelpers;
+
+    public function __construct(private readonly RoleService $roleService) {}
+
     // Get All roles along with permissions sorted by name 
     public function index()
     {
-        return response()->json([
+        return $this->respondWithSuccess([
             'success' => true,
             'message' => 'Roles Fetched Successfully',
-            'roles' => Role::with('permissions')->get()
-        ], 200);
+            'roles' => $this->roleService->getAllRoles()
+        ]);
     }
 
     // Get a single role by id 
     public function show($id)
     {
-        $role = Role::findOrFail($id); 
+        $role = $this->roleService->getRoleById($id);
 
-        return response()->json([
+        return $this->respondWithSuccess([
             'success' => true,
             'role' => $role,
-        ], 200);
+        ]);
     }
 
     // User can create new role 
     public function store(StoreRoleRequest $request)
     {
         // Validate all fields for creating role 
-        $role = Role::create([
-            'name' => $request->validated('name'),
-            'description' => $request->validated('description'),
-        ]);
-        
-        // Check if permissions are provided and sync them with the role, 
-        if (!empty($request->validated('permissions'))) {
-            $role->syncPermissions($request->validated('permissions'));
-        }
+        $role = $this->roleService->createRole($request->validated());
 
-        return response()->json([
+        return $this->respondCreated([
             'success' => true,
             'message' => 'Role created successfully',
             'role' => $role->load('permissions'),
-        ], 201);
+        ]);
     }
 
     public function update(UpdateRoleRequest $request, $id)
     {
-        $role = Role::findOrFail($id);
+        $role = $this->roleService->updateRole($request->validated(), $id);
 
-        $validated = $request->validated();
-
-        $fields = [
-            'name' => $validated['name'] ?? null,
-            'description' => $validated['description'] ?? null
-        ];
-
-        $role->update($fields);
-
-        // Check if permissions are provided and sync them with the role, it doesn't throw error if permissions are not provided in the request 
-        if (isset($validated['permissions'])) {
-            $role->syncPermissions($validated['permissions']);
-        }
-
-        return response()->json([
+        return $this->respondWithSuccess([
             'success' => true,
             'message' => 'Role updated successfully',
             'role' => $role->load('permissions'),
@@ -81,10 +65,10 @@ class RoleController extends Controller
         $role = Role::findOrFail($id);
         $role->delete();
 
-        return response()->json([
+        return $this->respondWithSuccess([
             'success' => true,
             'message' => 'Role deleted successfully',
-        ], 200);
+        ]);
 
     }
 

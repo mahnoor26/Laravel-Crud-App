@@ -3,107 +3,75 @@
 namespace App\Http\Controllers\UserManagement\User;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\UserManagement\User\StoreUserRequest as UserStoreUserRequest;
-use App\Http\Requests\UserManagement\User\UpdateUserRequest as UserUpdateUserRequest;
-use App\Models\User;
+use App\Http\Requests\UserManagement\User\StoreUserRequest;
+use App\Http\Requests\UserManagement\User\UpdateUserRequest;
+use App\Services\UserService;
+use F9Web\ApiResponseHelpers;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
+    use ApiResponseHelpers;
+    public function __construct(private readonly UserService $userService) {}
+
     // GET API /users
     public function index()
     {
-        return response()->json([
-            'success' => true,
+        return $this->respondWithSuccess([
             'message' => 'User Fetched Successfully',
-            'users' => User::with(['roles.permissions'])->get(),
-        ], 200);
+            'users' => $this->userService->getAllUsers(),
+        ]);
     }
 
     // POST API /users
-    public function store(UserStoreUserRequest $request)
+    public function store(StoreUserRequest $request)
     {
-        $fields = $request->validated();
+        $user = $this->userService->createUser($request->validated());     
 
-        $user = User::create([
-            'name' => $fields['name'],
-            'email' => $fields['email'],
-            'password' => Hash::make($fields['password']),
-        ]);
-
-        // Assign role
-        $role = \Spatie\Permission\Models\Role::findOrFail($fields['role_id']);
-        $user->assignRole($role);
-
-        $user->load(['roles.permissions']);
-
-        return response()->json([
-            'success' => true,
+        return $this->respondCreated([
             'message' => 'User created successfully',
             'user' => $user,
-        ], 201);
+        ]);
     }
 
     // GET /users/{id}
     public function show($id)
     {
-        $user = User::with(['roles.permissions'])->findOrFail($id); 
+        $user = $this->userService->getUserById($id);
 
-        return response()->json([
-            'success' => true,
+        return $this->respondWithSuccess([
+             'message' => 'User Fetched Successfully',
             'user' => $user,
-        ], 200);
+        ]);
     }
 
     // PUT API /users/{id}
-    public function update(UserUpdateUserRequest $request, $id)
+    public function update(UpdateUserRequest $request, $id)
     {
-        $user = User::findOrFail($id);
-        $fields = $request->validated();
+        $user = $this->userService->updateUser($id, $request->validated());
 
-        if (isset($fields['password'])) {
-            $fields['password'] = Hash::make($fields['password']);
-        }
-
-        $user->update([
-            'name' => $fields['name'] ?? $user->name,
-            'email' => $fields['email'] ?? $user->email,
-            'password' => $fields['password'] ?? $user->password,
-        ]);
-
-        $user->load(['roles.permissions']);
-
-        return response()->json([
-            'success' => true,
+        return $this->respondWithSuccess([
             'message' => 'User updated successfully',
             'user' => $user,
-        ], 200);
+        ]);
     }
 
     // DELETE API /users/{id}
     public function destroy($id)
     {
-        $user = User::findOrFail($id);
-        $user->delete();
+        $this->userService->deleteUser($id);
 
-        return response()->json([
-            'success' => true,
+        return $this->respondWithSuccess([
             'message' => 'User deleted successfully',
-        ], 200);
+        ]);
     }
 
     public function updateStatus(Request $request , $id)
     {
-        $user = User::findOrFail($id);
-        $user->status = $request->status;
-        $user->update([
-                'status' => $request->status,
-            ]);
+        $this->userService->updateStatus($id, $request->status);
             
-        return response()->json([
-            'success' => true,
+        return $this->respondWithSuccess([
             'message' => 'Status updated successfully',
-        ], 200);
+        ]);
     }
 }
