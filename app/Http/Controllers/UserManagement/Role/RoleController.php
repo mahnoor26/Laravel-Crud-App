@@ -19,7 +19,6 @@ class RoleController extends Controller
     public function index()
     {
         return $this->respondWithSuccess([
-            'success' => true,
             'message' => 'Roles Fetched Successfully',
             'roles' => $this->roleService->getAllRoles()
         ]);
@@ -31,7 +30,6 @@ class RoleController extends Controller
         $role = $this->roleService->getRoleById($id);
 
         return $this->respondWithSuccess([
-            'success' => true,
             'role' => $role,
         ]);
     }
@@ -43,7 +41,6 @@ class RoleController extends Controller
         $role = $this->roleService->createRole($request->validated());
 
         return $this->respondCreated([
-            'success' => true,
             'message' => 'Role created successfully',
             'role' => $role->load('permissions'),
         ]);
@@ -54,7 +51,6 @@ class RoleController extends Controller
         $role = $this->roleService->updateRole($request->validated(), $id);
 
         return $this->respondWithSuccess([
-            'success' => true,
             'message' => 'Role updated successfully',
             'role' => $role->load('permissions'),
         ]);
@@ -66,7 +62,6 @@ class RoleController extends Controller
         $role->delete();
 
         return $this->respondWithSuccess([
-            'success' => true,
             'message' => 'Role deleted successfully',
         ]);
 

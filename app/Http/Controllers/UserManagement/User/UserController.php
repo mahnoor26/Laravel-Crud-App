@@ -5,7 +5,7 @@ namespace App\Http\Controllers\UserManagement\User;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UserManagement\User\StoreUserRequest;
 use App\Http\Requests\UserManagement\User\UpdateUserRequest;
-use App\Services\UserService;
+use App\Services\UserManagement\UserService;
 use F9Web\ApiResponseHelpers;
 use Illuminate\Http\Request;
 

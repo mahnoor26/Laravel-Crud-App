@@ -1,13 +1,17 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\UserManagement;
 
 use App\Models\User;
+use App\Services\FileService;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
 
 class UserService
 {
+
+    public function __construct(private readonly FileService $fileService) {}
+
     public function getAllUsers()
     {
         return User::with(['roles.permissions'])->get();
@@ -18,32 +22,35 @@ class UserService
         return User::with(['roles.permissions'])->findOrFail($id);
     }
 
-    public function createUser(User $user)
+    public function createUser(array $data)
     {
         $user = User::create([
-            'name' => $user['name'],
-            'email' => $user['email'],
-            'password' => Hash::make($user['password']),
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'password' => Hash::make($data['password']),
         ]);
 
-        // Assign role
-        $role = Role::findOrFail($user['role_id']);
-        $user->assignRole($role);
+        // Assign role if provided
+        if (isset($data['role_id'])) {
+            $role = Role::findOrFail($data['role_id']);
+            $user->assignRole($role);
+        }
 
         return $user->load(['roles.permissions']);
     }
 
-    public function updateUser($id, User $user)
+    public function updateUser($id, array $data)
     {
         $user = User::findOrFail($id);
 
-        if (!empty($user['password'])) {
-            $user['password'] = Hash::make($user['password']);
+        // Hash password if provided, otherwise remove it to avoid overwriting
+        if (!empty($data['password'])) {
+            $data['password'] = Hash::make($data['password']);
         } else {
-            unset($user['password']); // avoid overwriting
+            unset($data['password']); // avoid overwriting existing password
         }
 
-        $user->update($user);
+        $user->update($data);
 
         return $user->load(['roles.permissions']);
     }
@@ -51,6 +58,7 @@ class UserService
     public function deleteUser($id)
     {
         $user = User::findOrFail($id);
+        $this->fileService->deleteFilesForEntity('user', $user->id);
         return $user->delete();
     }
 

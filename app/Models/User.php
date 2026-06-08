@@ -38,4 +38,12 @@ class User extends Authenticatable implements MustVerifyEmail
             'password' => 'hashed',
         ];
     }
+
+    /**
+     * Polymorphic relationship to get all files associated with this user
+     */
+    public function files()
+    {
+        return $this->morphMany(File::class, 'fileable');
+    }
 }

@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Models\Role;
-use Illuminate\Support\Facades\Hash;
 
 class RoleService
 {

@@ -17,6 +17,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | S3 Root Prefix
+    |--------------------------------------------------------------------------
+    |
+    | All uploads are stored under this folder in the bucket, e.g.:
+    | mahnoor/user/{id}/{filename} or mahnoor/customer/{id}/{filename}
+    |
+    */
+
+    's3_root_prefix' => env('AWS_ENVIRONMENT', 'mahnoor'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Filesystem Disks
     |--------------------------------------------------------------------------
     |
