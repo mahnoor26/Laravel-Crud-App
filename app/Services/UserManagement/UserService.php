@@ -3,15 +3,11 @@
 namespace App\Services\UserManagement;
 
 use App\Models\User;
-use App\Services\FileService;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
 
 class UserService
 {
-
-    public function __construct(private readonly FileService $fileService) {}
-
     public function getAllUsers()
     {
         return User::with(['roles.permissions'])->get();
@@ -58,7 +54,6 @@ class UserService
     public function deleteUser($id)
     {
         $user = User::findOrFail($id);
-        $this->fileService->deleteFilesForEntity('user', $user->id);
         return $user->delete();
     }
 

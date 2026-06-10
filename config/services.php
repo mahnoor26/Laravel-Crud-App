@@ -34,5 +34,9 @@ return [
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
+    's3' => [
+        'root_prefix' => env('AWS_S3_ROOT_PREFIX', 'mahnoor'),
+        'disk' => env('AWS_S3_DISK', 's3'),
+    ]
 
 ];

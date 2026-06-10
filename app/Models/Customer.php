@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\FileCascade;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Customer extends Model
 {
-    use HasFactory;
+    use HasFactory, FileCascade;
 
     protected $fillable = [
         'name',

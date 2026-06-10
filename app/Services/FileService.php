@@ -12,18 +12,11 @@ use InvalidArgumentException;
 
 class FileService
 {
-    private const S3_DISK = 's3';
 
     private const ENTITY_MAP = [
         'user' => User::class,
         'customer' => Customer::class,
     ];
-
-    //
-    private function rootPrefix(): string
-    {
-        return trim(config('filesystems.s3_root_prefix', 'mahnoor'), '/');
-    }
 
     // Get all files uploaded by the authenticated user.
     public function getUserFiles()
@@ -55,10 +48,10 @@ class FileService
 
         $entity = $modelClass::findOrFail($entityId);
 
-        $fileName = Str::uuid() . '.' . $uploadedFile->getClientOriginalExtension();
-        $directory = "{$this->rootPrefix()}/{$entityType}/{$entityId}";
+        $fileName =  date('Ymd_His') . '_' . $uploadedFile->getClientOriginalExtension();
+        $directory =  config('services.s3.root_prefix') . "/{$entityType}/{$entityId}";
 
-        $path = Storage::disk(self::S3_DISK)->putFileAs(
+        $path = Storage::disk(config('services.s3.disk'))->putFileAs(
             $directory,
             $uploadedFile,
             $fileName
@@ -67,7 +60,7 @@ class FileService
         return File::create([
             'name' => $uploadedFile->getClientOriginalName(),
             'path' => $path,
-            'file_size' => $uploadedFile->getSize(),
+            'size' => $uploadedFile->getSize(),
             'mime_type' => $uploadedFile->getMimeType(),
             'fileable_id' => $entity->id,
             'fileable_type' => $modelClass,
@@ -79,25 +72,9 @@ class FileService
     public function deleteFile($id): bool
     {
         $file = File::findOrFail($id);
-        Storage::disk(self::S3_DISK)->delete($file->path);
+        Storage::disk(config('services.s3.disk'))->delete($file->path);
 
         return (bool) $file->delete();
-    }
-
-    /**
-     * Delete all files for a morphable entity (e.g. when deleting a customer).
-     */
-    public function deleteFilesForEntity(string $entityType, int $entityId): void
-    {
-        $entityType = strtolower($entityType);
-        $modelClass = $this->resolveEntityClass($entityType);
-
-        File::query()
-            ->where('fileable_type', $modelClass)
-            ->where('fileable_id', $entityId)
-            ->each(function (File $file) {
-                $file->delete();
-            });
     }
 
     private function resolveEntityClass(string $entityType): string

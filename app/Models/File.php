@@ -11,6 +11,16 @@ class File extends Model
     use HasFactory;
 
     // Fillable attributes for mass assignment
+    protected $fillable = [
+        'fileable_id',
+        'fileable_type',
+        'name',
+        'path',
+        'size',
+        'mime_type',
+        'uploaded_by',
+    ];
+
     public function fileable(): MorphTo
     {
         return $this->morphTo();

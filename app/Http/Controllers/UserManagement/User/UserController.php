@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\UserManagement\User;
 
+use App\Traits\FileCascade;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UserManagement\User\StoreUserRequest;
 use App\Http\Requests\UserManagement\User\UpdateUserRequest;
@@ -11,7 +12,7 @@ use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
-    use ApiResponseHelpers;
+    use ApiResponseHelpers, FileCascade;
     public function __construct(private readonly UserService $userService) {}
 
     // GET API /users

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Customer;
 
+use App\Traits\FileCascade;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Customer\StoreCustomerRequest;
 use App\Http\Requests\Customer\UpdateCustomerRequest;
@@ -11,7 +12,7 @@ use F9Web\ApiResponseHelpers;
 
 class CustomerController extends Controller
 {
-    use ApiResponseHelpers;
+    use ApiResponseHelpers, FileCascade;
 
     public function __construct(private readonly CustomerService $customerService) {}
 

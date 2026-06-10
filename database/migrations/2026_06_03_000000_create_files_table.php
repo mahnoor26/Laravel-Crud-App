@@ -10,7 +10,7 @@ return new class extends Migration {
         Schema::create('files', function (Blueprint $table) {
             $table->id();
             $table->morphs('fileable'); // fileable_id & fileable_type
-            $table->string('original_name');
+            $table->string('name');
             $table->string('path'); // S3 key
             $table->unsignedBigInteger('size');
             $table->string('mime_type');
